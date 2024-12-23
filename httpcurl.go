@@ -22,7 +22,7 @@ type Option func(h *HttpCurl)
 // HttpCurl http curl instance.
 type HttpCurl struct {
 	sep             string
-	dumpRequestBody func(req *http.Request) (string, error)
+	dumpRequestBody func(io.ReadCloser) (io.ReadCloser, string, error)
 }
 
 // WithSeparator set separator, default is no separator.
@@ -33,7 +33,7 @@ func WithSeparator(sep string) Option {
 }
 
 // WithDumpRequestBody dump request body. default dump.
-func WithDumpRequestBody(dumpRequestBody func(req *http.Request) (string, error)) Option {
+func WithDumpRequestBody(dumpRequestBody func(b io.ReadCloser) (io.ReadCloser, string, error)) Option {
 	return func(h *HttpCurl) {
 		if dumpRequestBody != nil {
 			h.dumpRequestBody = dumpRequestBody
@@ -91,10 +91,11 @@ func (h *HttpCurl) IntoCurl(req *http.Request) (string, error) {
 	}
 
 	if req.Body != nil {
-		reqBody, err := h.dumpRequestBody(req)
+		rc, reqBody, err := h.dumpRequestBody(req.Body)
 		if err != nil {
 			return "", err
 		}
+		req.Body = rc
 		if reqBody != "" {
 			b.WriteLine("-d", bashEscape(reqBody))
 		}
@@ -104,18 +105,20 @@ func (h *HttpCurl) IntoCurl(req *http.Request) (string, error) {
 	return b.String(), nil
 }
 
-func dumpRequestBody(req *http.Request) (string, error) {
+func dumpRequestBody(b io.ReadCloser) (io.ReadCloser, string, error) {
+	if b == nil || b == http.NoBody {
+		// No copying needed. Preserve the magic sentinel meaning of NoBody.
+		return http.NoBody, "", nil
+	}
 	var buff bytes.Buffer
-	_, err := buff.ReadFrom(req.Body)
+	_, err := buff.ReadFrom(b)
 	if err != nil {
-		return "", fmt.Errorf("httpcurl: buffer read from request body error, %w", err)
+		return nil, "", fmt.Errorf("httpcurl: buffer read from request body error, %w", err)
 	}
-	// reset body for re-reads
-	req.Body = io.NopCloser(bytes.NewBuffer(buff.Bytes()))
-	if len(buff.String()) > 0 {
-		return buff.String(), nil
+	if err = b.Close(); err != nil {
+		return nil, "", err
 	}
-	return "", nil
+	return io.NopCloser(bytes.NewReader(buff.Bytes())), buff.String(), nil
 }
 
 type builder struct {
