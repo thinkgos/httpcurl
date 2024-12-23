@@ -11,23 +11,28 @@ import (
 
 var defaultHttpCurl = New()
 
+// IntoCurl returns a curl corresponding to an http.Request use default option.
 func IntoCurl(req *http.Request) (string, error) {
 	return defaultHttpCurl.IntoCurl(req)
 }
 
+// Option HttpCurl option
 type Option func(h *HttpCurl)
 
+// HttpCurl http curl instance.
 type HttpCurl struct {
 	sep             string
 	dumpRequestBody func(req *http.Request) (string, error)
 }
 
+// WithSeparator set separator, default is no separator.
 func WithSeparator(sep string) Option {
 	return func(h *HttpCurl) {
 		h.sep = sep
 	}
 }
 
+// WithDumpRequestBody dump request body. default dump.
 func WithDumpRequestBody(dumpRequestBody func(req *http.Request) (string, error)) Option {
 	return func(h *HttpCurl) {
 		if dumpRequestBody != nil {
@@ -36,6 +41,7 @@ func WithDumpRequestBody(dumpRequestBody func(req *http.Request) (string, error)
 	}
 }
 
+// New a new HttpCurl.
 func New(opts ...Option) *HttpCurl {
 	h := &HttpCurl{
 		sep:             "",
@@ -102,7 +108,7 @@ func dumpRequestBody(req *http.Request) (string, error) {
 	var buff bytes.Buffer
 	_, err := buff.ReadFrom(req.Body)
 	if err != nil {
-		return "", fmt.Errorf("httpcurl(IntoCurl): buffer read from body error: %w", err)
+		return "", fmt.Errorf("httpcurl: buffer read from request body error, %w", err)
 	}
 	// reset body for re-reads
 	req.Body = io.NopCloser(bytes.NewBuffer(buff.Bytes()))
