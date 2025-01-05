@@ -25,6 +25,26 @@ import "github.com/thinkgos/httpcurl"
 
 ## Example
 
+```go
+import (
+    "fmt"
+    "github.com/thinkgos/httpcurl"
+)
+
+func main() {
+	form := url.Values{}
+	form.Add("age", "10")
+	form.Add("name", "John")
+	body := form.Encode()
+
+	req, _ := http.NewRequest(http.MethodPost, "http://example/cats", io.NopCloser(bytes.NewBufferString(body)))
+	req.Header.Add("API_KEY", "123")
+
+	curl, _ := httpcurl.IntoCurl(req)
+    fmt.Println(curl) // curl 'http://example/cats' -X 'POST' -H 'Api_key: 123' -d 'age=10&name=John' --compressed
+}
+```
+
 ## Reference
 
 ## License
