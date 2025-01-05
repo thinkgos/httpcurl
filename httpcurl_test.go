@@ -14,14 +14,14 @@ import (
 func Test_IntoCurl(t *testing.T) {
 	form := url.Values{}
 	form.Add("age", "10")
-	form.Add("name", "Hudson")
+	form.Add("name", "John")
 	body := form.Encode()
 
 	req, _ := http.NewRequest(http.MethodPost, "http://example/cats", io.NopCloser(bytes.NewBufferString(body)))
 	req.Header.Add("API_KEY", "123")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'http://example/cats' -X 'POST' -H 'Api_key: 123' -d 'age=10&name=Hudson' --compressed`
+	want := `curl 'http://example/cats' -X 'POST' -H 'Api_key: 123' -d 'age=10&name=John' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
 	}

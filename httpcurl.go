@@ -59,8 +59,8 @@ func (h *HttpCurl) IntoCurl(req *http.Request) (string, error) {
 		return "", fmt.Errorf("httpcurl(IntoCurl): invalid request, req.URL is nil")
 	}
 	b := builder{
-		buf:      strings.Builder{},
-		HttpCurl: h,
+		buf: strings.Builder{},
+		sep: h.sep,
 	}
 	b.buf.Grow(256)
 	b.WriteLine("curl")
@@ -123,7 +123,7 @@ func dumpRequestBody(b io.ReadCloser) (io.ReadCloser, string, error) {
 
 type builder struct {
 	buf strings.Builder
-	*HttpCurl
+	sep string
 }
 
 func (b *builder) String() string {
