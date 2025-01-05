@@ -17,35 +17,34 @@ func Test_IntoCurl(t *testing.T) {
 	form.Add("name", "Hudson")
 	body := form.Encode()
 
-	req, _ := http.NewRequest(http.MethodPost, "http://foo.com/cats", io.NopCloser(bytes.NewBufferString(body)))
+	req, _ := http.NewRequest(http.MethodPost, "http://example/cats", io.NopCloser(bytes.NewBufferString(body)))
 	req.Header.Add("API_KEY", "123")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'http://foo.com/cats' -X 'POST' -H 'Api_key: 123' -d 'age=10&name=Hudson' --compressed`
+	want := `curl 'http://example/cats' -X 'POST' -H 'Api_key: 123' -d 'age=10&name=Hudson' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
 	}
 }
 
 func Test_IntoCurl_JSON(t *testing.T) {
-	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu", bytes.NewBufferString(`{"hello":"world","answer":42}`))
+	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`{"hello":"world","answer":42}`))
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu' -X 'PUT' -H 'Content-Type: application/json' -d '{"hello":"world","answer":42}' --compressed`
+	want := `curl 'http://www.example.com/abc/def.png?jlk=mno&pqr=stu' -X 'PUT' -H 'Content-Type: application/json' -d '{"hello":"world","answer":42}' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
 	}
 }
 
 func Test_IntoCurl_Separator(t *testing.T) {
-	// See https://github.com/moul/http2curl/issues/12
-	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu", bytes.NewBufferString(`{"hello":"world","answer":42}`))
+	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`{"hello":"world","answer":42}`))
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := New(WithSeparator(" \\\n"), WithDumpRequestBody(dumpRequestBody)).IntoCurl(req)
 	want := `curl \
- 'http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu' \
+ 'http://www.example.com/abc/def.png?jlk=mno&pqr=stu' \
  -X 'PUT' \
  -H 'Content-Type: application/json' \
  -d '{"hello":"world","answer":42}' \
@@ -56,33 +55,33 @@ func Test_IntoCurl_Separator(t *testing.T) {
 }
 
 func Test_IntoCurl_NoBody(t *testing.T) {
-	req, _ := http.NewRequest("GET", "http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu", nil)
+	req, _ := http.NewRequest("GET", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", nil)
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu' -X 'GET' -H 'Content-Type: application/json' --compressed`
+	want := `curl 'http://www.example.com/abc/def.png?jlk=mno&pqr=stu' -X 'GET' -H 'Content-Type: application/json' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
 	}
 }
 
 func Test_IntoCurl_EmptyStringBody(t *testing.T) {
-	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu", bytes.NewBufferString(""))
+	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(""))
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu' -X 'PUT' -H 'Content-Type: application/json' --compressed`
+	want := `curl 'http://www.example.com/abc/def.png?jlk=mno&pqr=stu' -X 'PUT' -H 'Content-Type: application/json' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
 	}
 }
 
 func Test_IntoCurl_NewlineInBody(t *testing.T) {
-	req, _ := http.NewRequest("POST", "http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu", bytes.NewBufferString("hello\nworld"))
+	req, _ := http.NewRequest("POST", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString("hello\nworld"))
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu' -X 'POST' -H 'Content-Type: application/json' -d 'hello
+	want := `curl 'http://www.example.com/abc/def.png?jlk=mno&pqr=stu' -X 'POST' -H 'Content-Type: application/json' -d 'hello
 world' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
@@ -90,18 +89,18 @@ world' --compressed`
 }
 
 func Test_IntoCurl_SpecialCharsInBody(t *testing.T) {
-	req, _ := http.NewRequest("POST", "http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu", bytes.NewBufferString(`Hello $123 o'neill -"-`))
+	req, _ := http.NewRequest("POST", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`Hello $123 o'neill -"-`))
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu' -X 'POST' -H 'Content-Type: application/json' -d 'Hello $123 o'\''neill -"-' --compressed`
+	want := `curl 'http://www.example.com/abc/def.png?jlk=mno&pqr=stu' -X 'POST' -H 'Content-Type: application/json' -d 'Hello $123 o'\''neill -"-' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
 	}
 }
 
 func Test_IntoCurl_Other(t *testing.T) {
-	uri := "http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu"
+	uri := "http://www.example.com/abc/def.png?jlk=mno&pqr=stu"
 	payload := new(bytes.Buffer)
 	payload.Write([]byte(`{"hello":"world","answer":42}`))
 	req, err := http.NewRequest("PUT", uri, payload)
@@ -112,14 +111,14 @@ func Test_IntoCurl_Other(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'http://www.example.com/abc/def.ghi?jlk=mno&pqr=stu' -X 'PUT' -H 'Content-Type: application/json' -H 'X-Auth-Token: private-token' -d '{"hello":"world","answer":42}' --compressed`
+	want := `curl 'http://www.example.com/abc/def.png?jlk=mno&pqr=stu' -X 'PUT' -H 'Content-Type: application/json' -H 'X-Auth-Token: private-token' -d '{"hello":"world","answer":42}' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
 	}
 }
 
 func Test_IntoCurl_Https(t *testing.T) {
-	uri := "https://www.example.com/abc/def.ghi?jlk=mno&pqr=stu"
+	uri := "https://www.example.com/abc/def.png?jlk=mno&pqr=stu"
 	payload := new(bytes.Buffer)
 	payload.Write([]byte(`{"hello":"world","answer":42}`))
 	req, err := http.NewRequest("PUT", uri, payload)
@@ -130,7 +129,7 @@ func Test_IntoCurl_Https(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
-	want := `curl 'https://www.example.com/abc/def.ghi?jlk=mno&pqr=stu' -k -X 'PUT' -H 'Content-Type: application/json' -H 'X-Auth-Token: private-token' -d '{"hello":"world","answer":42}' --compressed`
+	want := `curl 'https://www.example.com/abc/def.png?jlk=mno&pqr=stu' -k -X 'PUT' -H 'Content-Type: application/json' -H 'X-Auth-Token: private-token' -d '{"hello":"world","answer":42}' --compressed`
 	if got != want {
 		t.Errorf("%s\ngot: %v\nwant: %v\n", t.Name(), got, want)
 	}
@@ -168,7 +167,7 @@ func Benchmark_IntoCurl(b *testing.B) {
 	for i := 0; i <= b.N; i++ {
 		form.Add("number", strconv.Itoa(i))
 		body := form.Encode()
-		req, _ := http.NewRequest(http.MethodPost, "http://foo.com", io.NopCloser(bytes.NewBufferString(body)))
+		req, _ := http.NewRequest(http.MethodPost, "http://example", io.NopCloser(bytes.NewBufferString(body)))
 		_, err := IntoCurl(req)
 		if err != nil {
 			panic(err)
