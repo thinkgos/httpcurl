@@ -27,8 +27,13 @@ import "github.com/thinkgos/httpcurl"
 
 ```go
 import (
-    "fmt"
-    "github.com/thinkgos/httpcurl"
+	"bytes"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+
+	"github.com/thinkgos/httpcurl"
 )
 
 func main() {
@@ -41,7 +46,7 @@ func main() {
 	req.Header.Add("API_KEY", "123")
 
 	curl, _ := httpcurl.IntoCurl(req)
-    fmt.Println(curl) // curl 'http://example/cats' -X 'POST' -H 'Api_key: 123' -d 'age=10&name=John' --compressed
+	fmt.Println(curl) // curl 'http://example/cats' -X 'POST' -H 'Api_key: 123' -d 'age=10&name=John' --compressed
 }
 ```
 
