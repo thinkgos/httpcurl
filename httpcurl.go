@@ -145,5 +145,5 @@ func (b *builder) WriteLine(vs ...string) *builder {
 }
 
 func bashEscape(str string) string {
-	return `'` + strings.Replace(str, `'`, `'\''`, -1) + `'`
+	return `'` + strings.ReplaceAll(str, `'`, `'\''`) + `'`
 }

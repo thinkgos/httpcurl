@@ -17,7 +17,7 @@ func Test_IntoCurl(t *testing.T) {
 	form.Add("name", "John")
 	body := form.Encode()
 
-	req, _ := http.NewRequest(http.MethodPost, "http://example/cats", io.NopCloser(bytes.NewBufferString(body)))
+	req, _ := http.NewRequest(http.MethodPost, "http://example/cats", io.NopCloser(bytes.NewBufferString(body))) // nolint: noctx
 	req.Header.Add("API_KEY", "123")
 
 	got, _ := IntoCurl(req)
@@ -39,7 +39,7 @@ func Test_IntoCurl_JSON(t *testing.T) {
 }
 
 func Test_IntoCurl_Separator(t *testing.T) {
-	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`{"hello":"world","answer":42}`))
+	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`{"hello":"world","answer":42}`)) // nolint: noctx
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := New(WithSeparator(" \\\n"), WithDumpRequestBody(dumpRequestBody)).IntoCurl(req)
@@ -55,7 +55,7 @@ func Test_IntoCurl_Separator(t *testing.T) {
 }
 
 func Test_IntoCurl_NoBody(t *testing.T) {
-	req, _ := http.NewRequest("GET", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", nil)
+	req, _ := http.NewRequest("GET", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", nil) // nolint: noctx
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
@@ -89,7 +89,7 @@ world' --compressed`
 }
 
 func Test_IntoCurl_SpecialCharsInBody(t *testing.T) {
-	req, _ := http.NewRequest("POST", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`Hello $123 o'neill -"-`))
+	req, _ := http.NewRequest("POST", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`Hello $123 o'neill -"-`)) // nolint: noctx
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
@@ -121,7 +121,7 @@ func Test_IntoCurl_Https(t *testing.T) {
 	uri := "https://www.example.com/abc/def.png?jlk=mno&pqr=stu"
 	payload := new(bytes.Buffer)
 	payload.Write([]byte(`{"hello":"world","answer":42}`))
-	req, err := http.NewRequest("PUT", uri, payload)
+	req, err := http.NewRequest("PUT", uri, payload) // nolint: noctx
 	if err != nil {
 		panic(err)
 	}
@@ -141,16 +141,16 @@ func Test_ServerSide(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		fmt.Fprint(w, s)
+		_, _ = fmt.Fprint(w, s)
 	}))
 	defer svr.Close()
 
 	url := svr.URL + "/?a=b"
-	resp, err := http.Get(url)
+	resp, err := http.Get(url) // nolint: noctx
 	if err != nil {
 		t.Error(err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // nolint: errcheck
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Error(err)
@@ -167,7 +167,7 @@ func Benchmark_IntoCurl(b *testing.B) {
 	for i := 0; i <= b.N; i++ {
 		form.Add("number", strconv.Itoa(i))
 		body := form.Encode()
-		req, _ := http.NewRequest(http.MethodPost, "http://example", io.NopCloser(bytes.NewBufferString(body)))
+		req, _ := http.NewRequest(http.MethodPost, "http://example", io.NopCloser(bytes.NewBufferString(body))) // nolint: noctx
 		_, err := IntoCurl(req)
 		if err != nil {
 			panic(err)
