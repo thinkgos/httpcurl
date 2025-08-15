@@ -2,6 +2,7 @@ package httpcurl
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -28,7 +29,7 @@ func Test_IntoCurl(t *testing.T) {
 }
 
 func Test_IntoCurl_JSON(t *testing.T) {
-	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`{"hello":"world","answer":42}`))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(`{"hello":"world","answer":42}`))
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
@@ -66,7 +67,7 @@ func Test_IntoCurl_NoBody(t *testing.T) {
 }
 
 func Test_IntoCurl_EmptyStringBody(t *testing.T) {
-	req, _ := http.NewRequest("PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(""))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString(""))
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
@@ -77,7 +78,7 @@ func Test_IntoCurl_EmptyStringBody(t *testing.T) {
 }
 
 func Test_IntoCurl_NewlineInBody(t *testing.T) {
-	req, _ := http.NewRequest("POST", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString("hello\nworld"))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "http://www.example.com/abc/def.png?jlk=mno&pqr=stu", bytes.NewBufferString("hello\nworld"))
 	req.Header.Set("Content-Type", "application/json")
 
 	got, _ := IntoCurl(req)
@@ -103,7 +104,7 @@ func Test_IntoCurl_Other(t *testing.T) {
 	uri := "http://www.example.com/abc/def.png?jlk=mno&pqr=stu"
 	payload := new(bytes.Buffer)
 	payload.Write([]byte(`{"hello":"world","answer":42}`))
-	req, err := http.NewRequest("PUT", uri, payload)
+	req, err := http.NewRequestWithContext(context.Background(), "PUT", uri, payload)
 	if err != nil {
 		panic(err)
 	}
